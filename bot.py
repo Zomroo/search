@@ -38,13 +38,13 @@ def handle_image(update, context):
     params = {'url': telegraph_url, 'rpt': 'imageview'}
     response = requests.get(search_url, headers=headers, params=params)
     if not response.ok:
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Error: failed to search for image.")
-    return
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Error: failed to search for image.")
+        return
 
     data = response.json()
     if 'items' not in data or not data['items']:
-    context.bot.send_message(chat_id=update.effective_chat.id, text="No results found for image search.")
-    return
+        context.bot.send_message(chat_id=update.effective_chat.id, text="No results found for image search.")
+        return
 
     best_match_url = data['items'][0]['url']
 
