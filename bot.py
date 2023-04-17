@@ -3,7 +3,7 @@ import urllib.request
 import requests
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-TELEGRAM_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TELEGRAM_TOKEN = "5931504207:AAF-jzKC8USclrFYrtcaeAZifQcmEcwFNe4"
 TELEGRAPH_TOKEN = "5931504207:AAF-jzKC8USclrFYrtcaeAZifQcmEcwFNe4"
 
 def start(update, context):
