@@ -33,20 +33,21 @@ def handle_image(update, context):
     telegraph_url = 'https://telegra.ph/{}'.format(telegraph_response.json()['result']['path'])
 
     # Search for the image on Yandex
-    search_url = 'https://api.cognitive.microsoft.com/bing/v7.0/images/search'
-    headers = {'Ocp-Apim-Subscription-Key': YANDEX_API_KEY}
-    params = {'q': telegraph_url}
+    search_url = 'https://yandex.com/images/search'
+    headers = {'Authorization': 'Api-Key ' + YANDEX_API_KEY}
+    params = {'url': telegraph_url, 'rpt': 'imageview'}
     response = requests.get(search_url, headers=headers, params=params)
     response.raise_for_status()
 
     # Get the URL of the best match
-    best_match_url = response.json()['value'][0]['contentUrl']
+    best_match_url = response.json()['items'][0]['url']
 
     # Send the best match URL to the user
     context.bot.send_message(chat_id=update.effective_chat.id, text=best_match_url)
 
     # Delete the image
     os.remove('image.jpg')
+
 
 if __name__ == '__main__':
     updater = Updater(TELEGRAM_TOKEN, use_context=True)
