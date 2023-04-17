@@ -51,7 +51,6 @@ def handle_image(update, context):
     print(response.text)
     response.raise_for_status()
 
-
     # Get the URL of the best match
     best_match_url = response.json()['items'][0]['url']
 
@@ -61,11 +60,13 @@ def handle_image(update, context):
     # Delete the image
     os.remove('image.jpg')
 
-
-if __name__ == '__main__':
+def main():
     updater = Updater(TELEGRAM_TOKEN, use_context=True)
     dp = updater.dispatcher
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(MessageHandler(Filters.photo, handle_image))
     updater.start_polling()
     updater.idle()
+
+if __name__ == '__main__':
+    main()
