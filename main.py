@@ -40,6 +40,7 @@ def search_yandex(file_path: str) -> str:
     # Send the request to Yandex and parse the response
     response = requests.get(url, headers=headers, params=params)
     data = response.json()
+    print(data) # added for debugging
     name = data["blocks"][0]["params"]["name"]
 
     return name
