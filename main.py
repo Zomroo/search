@@ -12,8 +12,7 @@ API_HASH = "f6b0ceec5535804be7a56ac71d08a5d4"
 BOT_TOKEN = "5931504207:AAF-jzKC8USclrFYrtcaeAZifQcmEcwFNe4"
 
 # Set up the Telegraph access token
-TELEGRAPH_ACCESS_TOKEN = "8bbe8974d80380a9bc560ce2c91443ab78bc182a8d04a6be0c6c7bcb6038
-"
+TELEGRAPH_ACCESS_TOKEN = "8bbe8974d80380a9bc560ce2c91443ab78bc182a8d04a6be0c6c7bcb6038"
 
 # Create the Pyrogram client object
 app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
