@@ -3,8 +3,8 @@ import urllib.request
 import requests
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-TELEGRAM_TOKEN = "8bbe8974d80380a9bc560ce2c91443ab78bc182a8d04a6be0c6c7bcb6038"
-TELEGRAPH_TOKEN = "5931504207:AAF-jzKC8USclrFYrtcaeAZifQcmEcwFNe4"
+TELEGRAPH_TOKEN = "8bbe8974d80380a9bc560ce2c91443ab78bc182a8d04a6be0c6c7bcb6038"
+TELEGRAM_TOKEN = "5931504207:AAF-jzKC8USclrFYrtcaeAZifQcmEcwFNe4"
 
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hi! Send me an image and I'll upload it to telegra.ph for you.")
