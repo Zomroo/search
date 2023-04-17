@@ -37,7 +37,9 @@ def handle_image(update, context):
     headers = {'Authorization': 'Api-Key ' + YANDEX_API_KEY}
     params = {'url': telegraph_url, 'rpt': 'imageview'}
     response = requests.get(search_url, headers=headers, params=params)
+    print(response.text)
     response.raise_for_status()
+
 
     # Get the URL of the best match
     best_match_url = response.json()['items'][0]['url']
