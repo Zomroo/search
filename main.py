@@ -40,10 +40,17 @@ def search_yandex(file_path: str) -> str:
     # Send the request to Yandex and parse the response
     response = requests.get(url, headers=headers, params=params)
     data = response.json()
-    print(data) # added for debugging
-    name = data["blocks"][0]["params"]["name"]
 
-    return name
+    # Check if the "blocks" key is present
+    if "blocks" in data:
+        # Get the name from the first block
+        name = data["blocks"][0]["params"].get("name")
+        if name:
+            return name
+
+    # Return an error message if no name was found
+    return "Sorry, I couldn't find the name of the character in this image."
+
 
 # Start the Pyrogram client
 app.run()
