@@ -17,44 +17,37 @@ def handle_image(update, context):
 
     # Upload the image to telegra.ph
     response = requests.post('https://telegra.ph/upload', files={'file': open('image.jpg', 'rb')})
-    response.raise_for_status()
+    if response.status_code != 200:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Failed to upload image to telegra.ph.")
+        return
 
     # Get the URL of the uploaded image
-    image_url = response.json()[0]['src']
+    image_url = response.json().get('src')
+    if not image_url:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Failed to get URL of uploaded image.")
+        return
 
-    # Create a telegra.ph link for the image
-    telegraph_response = requests.post('https://api.telegra.ph/createPage', json={
-        'access_token': TELEGRAPH_TOKEN,
-        'title': 'Image',
-        'author_name': 'Telegram Bot',
-        'content': [{'tag': 'img', 'attrs': {'src': image_url}}]
-    })
-    telegraph_response.raise_for_status()
-    telegraph_url = 'https://telegra.ph/{}'.format(telegraph_response.json()['result']['path'])
+    # Use the Yandex API to find visually similar images
+    params = {
+        "apikey": YANDEX_API_KEY,
+        "lang": "en",
+        "image_url": image_url,
+        "filter": "images",
+        "per_page": 1
+    }
+    response = requests.get("https://api.webmaster.yandex.net/v4/management/hosts/qa.yandex.net/verification?callback=jsonp1&"+ urllib.parse.urlencode(params))
+    if response.status_code != 200:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Failed to find visually similar images.")
+        return
 
-    # Search for the image on Yandex
-    search_url = 'https://yandex.com/images/search'
-    headers = {'Authorization': 'Api-Key ' + YANDEX_API_KEY}
-    params = {'url': telegraph_url, 'rpt': 'imageview'}
-    response = requests.get(search_url, headers=headers, params=params)
-    print(response.text)
-    response.raise_for_status()
-
-
-    # Get the URL of the best match
-    best_match_url = response.json()['items'][0]['url'] if len(response.json()['items']) > 0 else 'No results found.'
-
-    # Send the best match URL to the user
+    # Get the URL of the best match image
+    best_match_url = response.json()['items'][0]['url'] if len(response.json().get('items', [])) > 0 else 'No results found.'
     context.bot.send_message(chat_id=update.effective_chat.id, text=best_match_url)
 
-    # Delete the image
-    os.remove('image.jpg')
+updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
+dispatcher = updater.dispatcher
+dispatcher.add_handler(CommandHandler("start", start))
+dispatcher.add_handler(MessageHandler(Filters.photo, handle_image))
 
-
-if __name__ == '__main__':
-    updater = Updater(TELEGRAM_TOKEN, use_context=True)
-    dp = updater.dispatcher
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.photo, handle_image))
-    updater.start_polling()
-    updater.idle()
+updater.start_polling()
+updater.idle()
