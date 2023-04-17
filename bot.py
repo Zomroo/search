@@ -1,30 +1,46 @@
 import os
-from PIL import Image
-from pyrogram import Client, filters
+import urllib.request
+import requests
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-API_ID = 16844842
-API_HASH = "f6b0ceec5535804be7a56ac71d08a5d4"
-BOT_TOKEN = "5931504207:AAF-jzKC8USclrFYrtcaeAZifQcmEcwFNe4"
+TELEGRAM_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TELEGRAPH_TOKEN = "5931504207:AAF-jzKC8USclrFYrtcaeAZifQcmEcwFNe4"
 
+def start(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Hi! Send me an image and I'll upload it to telegra.ph for you.")
 
-# Create the Pyrogram client object
-app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+def handle_image(update, context):
+    # Download the image
+    photo_file = context.bot.getFile(update.message.photo[-1].file_id)
+    photo_file.download('image.jpg')
 
-TMP_DOWNLOAD_DIRECTORY = "./"
+    # Upload the image to telegra.ph
+    response = requests.post('https://telegra.ph/upload', files={'file': open('image.jpg', 'rb')})
+    response.raise_for_status()
 
-@app.on_message(filters.photo)
-async def telegraph(client, message):
-    # Download image
-    image_path = await client.download_media(
-        message=message,
-        file_name=TMP_DOWNLOAD_DIRECTORY
-    )
-    
-    # Upload to telegra.ph
-    with open(image_path, "rb") as f:
-        img_url = await client.create_media("Photo", media=f)
-    
-    # Send URL back to user
-    await message.reply(f"Uploaded to telegra.ph: {img_url}")
+    # Get the URL of the uploaded image
+    image_url = response.json()[0]['src']
 
-app.run()
+    # Create a telegra.ph link for the image
+    telegraph_response = requests.post('https://api.telegra.ph/createPage', json={
+        'access_token': TELEGRAPH_TOKEN,
+        'title': 'Image',
+        'author_name': 'Telegram Bot',
+        'content': [{'tag': 'img', 'attrs': {'src': image_url}}]
+    })
+    telegraph_response.raise_for_status()
+    telegraph_url = 'https://telegra.ph/{}'.format(telegraph_response.json()['result']['path'])
+
+    # Send the telegra.ph link to the user
+    context.bot.send_message(chat_id=update.effective_chat.id, text=telegraph_url)
+
+    # Delete the image
+    os.remove('image.jpg')
+
+if __name__ == '__main__':
+    updater = Updater(TELEGRAM_TOKEN, use_context=True)
+    dp = updater.dispatcher
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(Filters.photo, handle_image))
+    updater.start_polling()
+    updater.idle()
