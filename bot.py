@@ -5,6 +5,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 TELEGRAPH_TOKEN = "8bbe8974d80380a9bc560ce2c91443ab78bc182a8d04a6be0c6c7bcb6038"
 TELEGRAM_TOKEN = "5931504207:AAF-jzKC8USclrFYrtcaeAZifQcmEcwFNe4"
+YANDEX_API_KEY = "pdct.1.1.20230417T173414Z.11f0fa2998c61794.8f5c7895468d7cb94d573c07710a39ad856eefc2"
 
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hi! Send me an image and I'll upload it to telegra.ph for you.")
@@ -31,8 +32,18 @@ def handle_image(update, context):
     telegraph_response.raise_for_status()
     telegraph_url = 'https://telegra.ph/{}'.format(telegraph_response.json()['result']['path'])
 
-    # Send the telegra.ph link to the user
-    context.bot.send_message(chat_id=update.effective_chat.id, text=telegraph_url)
+    # Search for the image on Yandex
+    search_url = 'https://api.cognitive.microsoft.com/bing/v7.0/images/search'
+    headers = {'Ocp-Apim-Subscription-Key': YANDEX_API_KEY}
+    params = {'q': telegraph_url}
+    response = requests.get(search_url, headers=headers, params=params)
+    response.raise_for_status()
+
+    # Get the URL of the best match
+    best_match_url = response.json()['value'][0]['contentUrl']
+
+    # Send the best match URL to the user
+    context.bot.send_message(chat_id=update.effective_chat.id, text=best_match_url)
 
     # Delete the image
     os.remove('image.jpg')
