@@ -8,6 +8,8 @@ API_ID = 16844842
 API_HASH = "f6b0ceec5535804be7a56ac71d08a5d4"
 BOT_TOKEN = "5931504207:AAF-jzKC8USclrFYrtcaeAZifQcmEcwFNe4"
 
+app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
 @app.on_message(filters.command("start"))
 async def start_command(client, message):
     await message.reply_text("Hi! Send me an image and I'll find the topmost similar result.")
