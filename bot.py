@@ -22,7 +22,14 @@ def handle_image(update, context):
         return
 
     # Get the URL of the uploaded image
-    image_url = response.json().get('src')
+    if isinstance(response.json(), list):
+        image_url = response.json()[0].get('src')
+    elif isinstance(response.json(), dict):
+        image_url = response.json().get('src')
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Failed to get URL of uploaded image.")
+        return
+
     if not image_url:
         context.bot.send_message(chat_id=update.effective_chat.id, text="Failed to get URL of uploaded image.")
         return
@@ -43,6 +50,7 @@ def handle_image(update, context):
     # Get the URL of the best match image
     best_match_url = response.json()['items'][0]['url'] if len(response.json().get('items', [])) > 0 else 'No results found.'
     context.bot.send_message(chat_id=update.effective_chat.id, text=best_match_url)
+
 
 updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
